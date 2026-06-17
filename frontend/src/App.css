@@ -1,66 +1,66 @@
 /* ── reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── light theme (default) ── */
+/* ── light theme ── */
 :root, [data-theme="light"] {
-  --teal-50:  #E1F5EE;
-  --teal-100: #9FE1CB;
-  --teal-400: #1D9E75;
-  --teal-600: #0F6E56;
-  --teal-800: #085041;
+  --teal-50:  #F5F3FF;
+  --teal-100: #DDD6FE;
+  --teal-400: #7C3AED;
+  --teal-600: #6D28D9;
+  --teal-800: #4C1D95;
 
-  --bg-page:       #f5f7f6;
+  --bg-page:       #f7f5fb;
   --bg-card:       #ffffff;
-  --bg-subtle:     #f0f4f2;
-  --bg-input:      #f7f9f8;
+  --bg-subtle:     #efecf9;
+  --bg-input:      #f8f6fd;
 
-  --text-primary:  #111714;
-  --text-secondary:#4a5752;
-  --text-muted:    #8fa098;
+  --text-primary:  #0f0a1e;
+  --text-secondary:#4a4462;
+  --text-muted:    #9188a8;
 
-  --border:        rgba(0,0,0,0.08);
-  --border-strong: rgba(0,0,0,0.15);
+  --border:        rgba(80,40,140,0.09);
+  --border-strong: rgba(80,40,140,0.16);
 
-  --chip-weather-bg:   #E1F5EE;
-  --chip-weather-border:#9FE1CB;
-  --chip-weather-text: #085041;
-  --chip-vibe-bg:      #f0fdf4;
-  --chip-vibe-border:  #bbf7d0;
-  --chip-vibe-text:    #166534;
-  --chip-note-bg:      #fffbeb;
-  --chip-note-border:  #fde68a;
-  --chip-note-text:    #92400e;
+  --chip-weather-bg:    #F5F3FF;
+  --chip-weather-border:#DDD6FE;
+  --chip-weather-text:  #4C1D95;
+  --chip-vibe-bg:       #F5F3FF;
+  --chip-vibe-border:   #DDD6FE;
+  --chip-vibe-text:     #7C3AED;
+  --chip-note-bg:       #fffbeb;
+  --chip-note-border:   #fde68a;
+  --chip-note-text:     #92400e;
 }
 
-/* ── dark theme ── */
+/* ── dark theme — black & pink ── */
 [data-theme="dark"] {
-  --teal-50:  #0a2e22;
-  --teal-100: #0d3d2c;
-  --teal-400: #2dd4a0;
-  --teal-600: #5ee8bc;
-  --teal-800: #a7f3d8;
+  --teal-50:  rgba(244,114,182,0.07);
+  --teal-100: rgba(244,114,182,0.15);
+  --teal-400: #F472B6;
+  --teal-600: #DB2777;
+  --teal-800: #f9fafb;
 
-  --bg-page:       #0e1512;
-  --bg-card:       #161e1a;
-  --bg-subtle:     #1c2620;
-  --bg-input:      #1c2620;
+  --bg-page:   #110F16;
+  --bg-card:   #1C1822;
+  --bg-subtle: #251F2D;
+  --bg-input:  #1A1620;
 
-  --text-primary:  #eaf5f0;
-  --text-secondary:#8fb8a8;
-  --text-muted:    #4d7060;
+  --text-primary:   #F8F0F5;
+  --text-secondary: #a1a1aa;
+  --text-muted:     #6b7280;
 
   --border:        rgba(255,255,255,0.07);
-  --border-strong: rgba(255,255,255,0.13);
+  --border-strong: rgba(255,255,255,0.12);
 
-  --chip-weather-bg:   #0a2e22;
-  --chip-weather-border:#0d3d2c;
-  --chip-weather-text: #a7f3d8;
-  --chip-vibe-bg:      #052e16;
-  --chip-vibe-border:  #14532d;
-  --chip-vibe-text:    #86efac;
-  --chip-note-bg:      #1c1400;
-  --chip-note-border:  #422006;
-  --chip-note-text:    #fcd34d;
+  --chip-weather-bg:    #1C1822;
+  --chip-weather-border:rgba(244,114,182,0.22);
+  --chip-weather-text:  #FCA5C5;
+  --chip-vibe-bg:       #1C1822;
+  --chip-vibe-border:   rgba(244,114,182,0.22);
+  --chip-vibe-text:     #FB7BB8;
+  --chip-note-bg:       #1C1400;
+  --chip-note-border:   rgba(245,200,66,0.22);
+  --chip-note-text:     #f5c842;
 }
 
 /* ── base ── */
@@ -71,6 +71,84 @@ html, body {
   font-family: 'DM Sans', 'Segoe UI', sans-serif;
   transition: background 0.25s, color 0.25s;
 }
+
+/* dark mode: very subtle pink bloom */
+[data-theme="dark"] body {
+  background:
+    radial-gradient(ellipse at 30% 0%,   rgba(220,50,120,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 75% 100%, rgba(140,10,60,0.05)  0%, transparent 45%),
+    #110F16;
+}
+
+/* dark mode: elevated card with clear separation from page */
+[data-theme="dark"] .ms-card {
+  border-color: rgba(255,255,255,0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 4px 20px rgba(0,0,0,0.35);
+}
+
+/* dark mode: input glow on focus */
+[data-theme="dark"] .ms-input-wrap:focus-within {
+  border-color: #F472B6;
+  box-shadow: 0 0 0 3px rgba(244,114,182,0.15);
+}
+
+/* dark mode: mood pill active glow */
+[data-theme="dark"] .ms-mood-pill.active {
+  background: rgba(244,114,182,0.14);
+  border-color: rgba(244,114,182,0.55);
+  color: #FCA5C5;
+  box-shadow: 0 0 24px rgba(244,114,182,0.35), 0 6px 20px rgba(0,0,0,0.3);
+  transform: scale(1.04);
+}
+
+/* dark mode: language btn active glow */
+[data-theme="dark"] .ms-lang-btn.active {
+  background: rgba(244,114,182,0.12);
+  border-color: rgba(244,114,182,0.5);
+  color: #FCA5C5;
+  box-shadow: 0 0 10px rgba(244,114,182,0.18);
+}
+
+/* dark mode: gradient submit button */
+[data-theme="dark"] .ms-submit {
+  background: linear-gradient(135deg, #F472B6 0%, #DB2777 100%);
+  border-color: transparent;
+  box-shadow: 0 4px 20px rgba(244,114,182,0.35), 0 1px 0 rgba(255,255,255,0.1) inset;
+}
+[data-theme="dark"] .ms-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #FB7BB8 0%, #EC4899 100%);
+  box-shadow: 0 4px 28px rgba(244,114,182,0.5);
+}
+
+/* dark mode: logo pure white, wave stays pink */
+[data-theme="dark"] .ms-logo {
+  color: #FFFFFF;
+}
+
+/* dark mode: mode segment active */
+[data-theme="dark"] .ms-mode-btn.active {
+  background: rgba(244,114,182,0.14);
+  color: #FCA5C5;
+  box-shadow: inset 0 0 0 1px rgba(244,114,182,0.3);
+}
+
+/* dark mode: tracks list */
+[data-theme="dark"] .ms-tracks {
+  border-color: rgba(244,114,182,0.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+[data-theme="dark"] .ms-track:hover { background: rgba(244,114,182,0.07); }
+
+/* dark mode: queue */
+[data-theme="dark"] .ms-queue {
+  border-color: rgba(255,255,255,0.07);
+  background: #1C1822;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+[data-theme="dark"] .ms-queue-item:hover  { background: rgba(244,114,182,0.07); }
+[data-theme="dark"] .ms-queue-item.active { background: rgba(244,114,182,0.13); }
 
 /* ── layout ── */
 .ms-root {
@@ -85,7 +163,7 @@ html, body {
   max-width: 500px;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.75rem;
 }
 
 /* ── header ── */
@@ -98,9 +176,9 @@ html, body {
 }
 
 .ms-logo {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: -1.2px;
   color: var(--text-primary);
   display: flex;
   align-items: center;
@@ -109,13 +187,54 @@ html, body {
 
 .ms-logo-wave {
   color: var(--teal-400);
-  font-size: 28px;
+  font-size: 36px;
+  font-weight: 900;
 }
 
 .ms-tagline {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-top: 4px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 5px;
+  letter-spacing: 0.01em;
+}
+
+/* ── Spotify corner badge ── */
+.ms-sp-corner {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 200;
+}
+
+.ms-sp-corner-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 99px;
+  border: 1px solid #1db954;
+  background: rgba(29, 185, 84, 0.12);
+  color: #1db954;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.ms-sp-corner-btn:hover   { background: #1db954; color: #fff; }
+.ms-sp-corner-btn.on      { background: #1db954; color: #fff; }
+.ms-sp-corner-btn.loading { opacity: 0.65; cursor: default; }
+
+.ms-sp-chip {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: #1db954;
+  color: #fff;
+  font-weight: 600;
 }
 
 .ms-theme-toggle {
@@ -252,30 +371,52 @@ html, body {
   max-width: 100%;
 }
 
+/* ── mood question heading ── */
+.ms-mood-question {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+  margin: 0;
+}
+
 /* ── mood grid ── */
 .ms-mood-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
 .ms-mood-pill {
-  padding: 8px 4px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg-subtle);
+  padding: 18px 6px 16px;
+  border-radius: 16px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
   color: var(--text-secondary);
   font-size: 12px;
   font-family: inherit;
   text-align: center;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.18s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 80px;
+}
+
+.ms-mood-emoji {
+  font-size: 28px;
+  line-height: 1;
 }
 
 .ms-mood-pill:hover {
-  border-color: var(--teal-100);
+  border-color: var(--teal-400);
   color: var(--teal-800);
   background: var(--teal-50);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.09);
 }
 
 .ms-mood-pill.active {
@@ -283,6 +424,8 @@ html, body {
   border-color: var(--teal-400);
   color: var(--teal-800);
   font-weight: 600;
+  transform: scale(1.04);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.10);
 }
 
 /* ── energy ── */
@@ -537,13 +680,255 @@ html, body {
   color: var(--text-muted);
 }
 
+/* ── redesigned form sections ── */
+.ms-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* language and mode sit visually below the hero mood picker */
+.ms-lang-section {
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+/* larger city input */
+.ms-input-lg {
+  border-radius: 14px;
+  border-width: 1.5px;
+  padding: 0 18px;
+}
+.ms-input-lg .ms-input {
+  padding: 16px 0;
+  font-size: 15px;
+}
+
+/* language horizontal strip */
+.ms-lang-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.ms-lang-strip::-webkit-scrollbar { display: none; }
+
+.ms-lang-strip-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: 99px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.ms-lang-strip-btn:hover {
+  border-color: var(--teal-400);
+  color: var(--teal-600);
+  background: var(--teal-50);
+}
+.ms-lang-strip-btn.active {
+  background: var(--teal-50);
+  border-color: var(--teal-400);
+  color: var(--teal-800);
+  font-weight: 600;
+}
+[data-theme="dark"] .ms-lang-strip-btn.active {
+  background: rgba(244,114,182,0.12);
+  border-color: rgba(244,114,182,0.5);
+  color: #FCA5C5;
+  box-shadow: 0 0 10px rgba(244,114,182,0.18);
+}
+
+/* mode cards */
+.ms-mode-cards {
+  display: flex;
+  gap: 10px;
+}
+
+.ms-mode-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 16px;
+  border-radius: 16px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.ms-mode-card:hover {
+  border-color: var(--teal-400);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+.ms-mode-card.active {
+  border-color: var(--teal-400);
+  background: var(--teal-50);
+}
+[data-theme="dark"] .ms-mode-card.active {
+  background: rgba(244,114,182,0.1);
+  border-color: rgba(244,114,182,0.5);
+  box-shadow: 0 0 14px rgba(244,114,182,0.15);
+}
+
+.ms-mode-card-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.ms-mode-card.active .ms-mode-card-dot {
+  background: var(--teal-400);
+  border-color: var(--teal-400);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--teal-400) 40%, transparent);
+}
+
+.ms-mode-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
+}
+.ms-mode-card-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
 /* ── responsive ── */
 @media (max-width: 400px) {
   .ms-lang-grid { grid-template-columns: repeat(3, 1fr); }
-  .ms-mood-grid { grid-template-columns: repeat(3, 1fr); }
+  .ms-mood-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ── player screen ─────────────────────────────────────────────────────────── */
+
+/* weather theme tokens — defaults match the teal palette */
+.ms-player {
+  --wx-accent:   var(--teal-400);
+  --wx-accent2:  var(--teal-600);
+  --wx-glow:     rgba(29,158,117,0.15);
+  --wx-bg-start: var(--bg-card);
+  --wx-bg-end:   var(--bg-subtle);
+}
+
+/* Night (Clear at night) → deep indigo */
+.ms-player[data-weather="Night"] {
+  --wx-accent:   #818cf8;
+  --wx-accent2:  #6366f1;
+  --wx-glow:     rgba(99,102,241,0.18);
+  --wx-bg-start: #0d0f2b;
+  --wx-bg-end:   #050714;
+}
+
+/* Clear / Sunny → sunset warmth */
+.ms-player[data-weather="Clear"] {
+  --wx-accent:   #f97316;
+  --wx-accent2:  #ea580c;
+  --wx-glow:     rgba(249,115,22,0.18);
+  --wx-bg-start: #fff7ed;
+  --wx-bg-end:   #fef3c7;
+}
+[data-theme="dark"] .ms-player[data-weather="Clear"] {
+  --wx-bg-start: #2d1a06;
+  --wx-bg-end:   #1c1505;
+}
+
+/* Rain → cool blue */
+.ms-player[data-weather="Rain"] {
+  --wx-accent:   #3b82f6;
+  --wx-accent2:  #1d4ed8;
+  --wx-glow:     rgba(59,130,246,0.18);
+  --wx-bg-start: #eff6ff;
+  --wx-bg-end:   #e0f2fe;
+}
+[data-theme="dark"] .ms-player[data-weather="Rain"] {
+  --wx-bg-start: #071a3b;
+  --wx-bg-end:   #041020;
+}
+
+/* Clouds → morning sky blue */
+.ms-player[data-weather="Clouds"] {
+  --wx-accent:   #60a5fa;
+  --wx-accent2:  #3b82f6;
+  --wx-glow:     rgba(96,165,250,0.2);
+  --wx-bg-start: #f0f9ff;
+  --wx-bg-end:   #dbeafe;
+}
+[data-theme="dark"] .ms-player[data-weather="Clouds"] {
+  --wx-bg-start: #0c1832;
+  --wx-bg-end:   #07102a;
+}
+
+/* Thunderstorm → electric purple */
+.ms-player[data-weather="Thunderstorm"] {
+  --wx-accent:   #a855f7;
+  --wx-accent2:  #7c3aed;
+  --wx-glow:     rgba(168,85,247,0.22);
+  --wx-bg-start: #faf5ff;
+  --wx-bg-end:   #ede9fe;
+}
+[data-theme="dark"] .ms-player[data-weather="Thunderstorm"] {
+  --wx-bg-start: #160a2e;
+  --wx-bg-end:   #0b0418;
+}
+
+/* Mist → soft lavender */
+.ms-player[data-weather="Mist"] {
+  --wx-accent:   #818cf8;
+  --wx-accent2:  #6366f1;
+  --wx-glow:     rgba(129,140,248,0.18);
+  --wx-bg-start: #f5f3ff;
+  --wx-bg-end:   #eef2ff;
+}
+[data-theme="dark"] .ms-player[data-weather="Mist"] {
+  --wx-bg-start: #0e0c1e;
+  --wx-bg-end:   #070510;
+}
+
+/* Snow → icy cyan */
+.ms-player[data-weather="Snow"] {
+  --wx-accent:   #06b6d4;
+  --wx-accent2:  #0891b2;
+  --wx-glow:     rgba(6,182,212,0.18);
+  --wx-bg-start: #ecfeff;
+  --wx-bg-end:   #f0fdff;
+}
+[data-theme="dark"] .ms-player[data-weather="Snow"] {
+  --wx-bg-start: #031a1f;
+  --wx-bg-end:   #020e12;
+}
+
+/* Dust → sandy amber */
+.ms-player[data-weather="Dust"] {
+  --wx-accent:   #d97706;
+  --wx-accent2:  #b45309;
+  --wx-glow:     rgba(217,119,6,0.18);
+  --wx-bg-start: #fffbeb;
+  --wx-bg-end:   #fef3c7;
+}
+[data-theme="dark"] .ms-player[data-weather="Dust"] {
+  --wx-bg-start: #1f1200;
+  --wx-bg-end:   #100900;
+}
+
 .ms-player {
   width: 100%;
   max-width: 420px;
@@ -553,7 +938,136 @@ html, body {
   flex-direction: column;
   align-items: center;
   gap: 1.25rem;
+  background: linear-gradient(160deg, var(--wx-bg-start) 0%, var(--wx-bg-end) 100%);
+  border-radius: 20px;
+  transition: background 0.6s ease;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
 }
+
+/* ── canvas particle overlay ── */
+.ms-wx-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 20px;
+}
+
+/* ── player content sits above canvas ── */
+.ms-player-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+/* ── CSS background atmosphere (sun glow, subtle tints) ── */
+.ms-player::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 20px;
+}
+
+/* Sun — warm radial glow at top */
+.ms-player[data-weather="Clear"]::before {
+  background: radial-gradient(ellipse at 50% 0%, rgba(251,191,36,0.18) 0%, transparent 60%);
+  animation: wx-sun-glow 4s ease-in-out infinite;
+}
+@keyframes wx-sun-glow { 0%,100%{opacity:.65} 50%{opacity:1} }
+
+/* Rain — cool blue wash */
+.ms-player[data-weather="Rain"]::before {
+  background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.12) 0%, transparent 70%);
+}
+
+/* Thunderstorm — purple tint */
+.ms-player[data-weather="Thunderstorm"]::before {
+  background: radial-gradient(ellipse at 50% 0%, rgba(147,51,234,0.14) 0%, transparent 70%);
+}
+
+/* Clouds — morning sky wash */
+.ms-player[data-weather="Clouds"]::before {
+  background: radial-gradient(ellipse at 50% 0%, rgba(96,165,250,0.18) 0%, transparent 65%);
+}
+
+/* Mist — indigo haze */
+.ms-player[data-weather="Mist"]::before {
+  background: radial-gradient(ellipse at 50% 40%, rgba(129,140,248,0.1) 0%, transparent 70%);
+  animation: wx-mist-bg 8s ease-in-out infinite alternate;
+}
+@keyframes wx-mist-bg { from{opacity:.6} to{opacity:1} }
+
+/* Snow — icy blue ceiling */
+.ms-player[data-weather="Snow"]::before {
+  background: radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.1) 0%, transparent 65%);
+}
+
+/* Dust — amber haze */
+.ms-player[data-weather="Dust"]::before {
+  background: radial-gradient(ellipse at 30% 50%, rgba(217,119,6,0.14) 0%, transparent 55%),
+              radial-gradient(ellipse at 70% 50%, rgba(217,119,6,0.08) 0%, transparent 55%);
+  animation: wx-dust-bg 6s ease-in-out infinite alternate;
+}
+@keyframes wx-dust-bg { from{opacity:.6} to{opacity:1} }
+
+/* ── cloud shadow sweep ──────────────────────────────────────────────────────
+   A soft translucent band drifts across the whole player every ~18s.
+   Like standing outside when a cloud passes in front of the sun.
+   Everything — art, controls, text — dims gently then brightens.           */
+.ms-player::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 60%;
+  z-index: 10;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.12) 25%,
+    rgba(0, 0, 0, 0.12) 75%,
+    transparent 100%
+  );
+  will-change: transform;
+  animation: cloud-shadow-sweep 18s ease-in-out infinite;
+}
+
+@keyframes cloud-shadow-sweep {
+  0%          { transform: translateX(0%);   opacity: 0; }
+  4%          { opacity: 1; }
+  36%         { opacity: 1; }
+  40%         { transform: translateX(267%); opacity: 0; }
+  40.1%, 100% { transform: translateX(0%);   opacity: 0; }
+}
+
+/* ── album art weather glow ── */
+@keyframes wx-art-sun   { 0%,100%{box-shadow:0 0 22px rgba(251,191,36,.25),0 4px 24px rgba(0,0,0,.12)} 50%{box-shadow:0 0 55px rgba(251,191,36,.5),0 4px 24px rgba(0,0,0,.12)} }
+@keyframes wx-art-rain  { 0%,100%{box-shadow:0 0 20px rgba(59,130,246,.28),0 4px 24px rgba(0,0,0,.15)} 50%{box-shadow:0 0 45px rgba(59,130,246,.5),0 4px 24px rgba(0,0,0,.15)} }
+@keyframes wx-art-storm { 0%,85%,89%,100%{box-shadow:0 0 20px rgba(168,85,247,.25),0 4px 24px rgba(0,0,0,.15)} 87%{box-shadow:0 0 70px rgba(168,85,247,.8),0 4px 24px rgba(0,0,0,.15)} }
+@keyframes wx-art-snow  { 0%,100%{box-shadow:0 0 20px rgba(6,182,212,.2),0 4px 24px rgba(0,0,0,.1)} 50%{box-shadow:0 0 40px rgba(6,182,212,.45),0 4px 24px rgba(0,0,0,.1)} }
+@keyframes wx-art-cloud { 0%,100%{box-shadow:0 0 18px rgba(96,165,250,.22),0 4px 24px rgba(0,0,0,.1)} 50%{box-shadow:0 0 38px rgba(96,165,250,.45),0 4px 24px rgba(0,0,0,.1)} }
+@keyframes wx-art-dust  { 0%,100%{box-shadow:0 0 20px rgba(217,119,6,.25),0 4px 24px rgba(0,0,0,.12)} 50%{box-shadow:0 0 45px rgba(217,119,6,.5),0 4px 24px rgba(0,0,0,.12)} }
+@keyframes wx-art-mist  { 0%,100%{box-shadow:0 0 18px rgba(129,140,248,.2),0 4px 24px rgba(0,0,0,.1)} 50%{box-shadow:0 0 38px rgba(129,140,248,.4),0 4px 24px rgba(0,0,0,.1)} }
+
+.ms-player[data-weather="Clear"]        .ms-art-wrap { animation: wx-art-sun   3s   ease-in-out infinite; }
+.ms-player[data-weather="Rain"]         .ms-art-wrap { animation: wx-art-rain  2.5s ease-in-out infinite; }
+.ms-player[data-weather="Thunderstorm"] .ms-art-wrap { animation: wx-art-storm 3.5s ease-in-out infinite; }
+.ms-player[data-weather="Snow"]         .ms-art-wrap { animation: wx-art-snow  3s   ease-in-out infinite; }
+.ms-player[data-weather="Clouds"]       .ms-art-wrap { animation: wx-art-cloud 4s   ease-in-out infinite; }
+.ms-player[data-weather="Dust"]         .ms-art-wrap { animation: wx-art-dust  3s   ease-in-out infinite; }
+.ms-player[data-weather="Mist"]         .ms-art-wrap { animation: wx-art-mist  4s   ease-in-out infinite; }
 
 .ms-player-topbar {
   width: 100%;
@@ -605,6 +1119,9 @@ html, body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  position: relative;
+  transition: box-shadow 0.6s ease, border-color 0.6s ease;
 }
 
 .ms-art-img {
@@ -663,7 +1180,7 @@ html, body {
 
 .ms-progress-fill {
   height: 100%;
-  background: var(--teal-400);
+  background: var(--wx-accent);
   border-radius: 99px;
   pointer-events: none;
   transition: width 0.1s linear;
@@ -719,10 +1236,12 @@ html, body {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: var(--teal-400);
+  background: var(--wx-accent);
   color: #fff;
+  box-shadow: 0 0 18px var(--wx-glow);
+  transition: background 0.3s, box-shadow 0.3s, transform 0.15s;
 }
-.ms-ctrl-btn.primary:hover { background: var(--teal-600); }
+.ms-ctrl-btn.primary:hover { background: var(--wx-accent2); }
 .ms-ctrl-btn.primary:active { transform: scale(0.96); }
 
 .ms-no-preview {
@@ -810,6 +1329,605 @@ html, body {
 
 .ms-queue-playing {
   font-size: 10px;
-  color: var(--teal-400);
+  color: var(--wx-accent);
   flex-shrink: 0;
+}
+
+/* ── weather icon pinned to top-left corner of the card ── */
+.ms-wx-corner {
+  position: absolute;
+  top: 3.6rem;
+  left: 0.75rem;
+  z-index: 3;
+}
+
+/* ── city + temp inline in topbar ── */
+.ms-wx-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  margin-left: 0.6rem;
+}
+
+.ms-wx-city {
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  color: var(--wx-accent, #94a3b8);
+  line-height: 1.1;
+}
+
+.ms-wx-temp {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--wx-accent, #94a3b8);
+  line-height: 1.1;
+}
+
+/* ── weather animations ── */
+.ms-wx-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(6px);
+  flex-shrink: 0;
+  margin: -0.25rem 0;
+}
+
+.ms-wx-icon {
+  font-size: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* badge glow per weather */
+@keyframes wx-badge-sun   { 0%,100%{box-shadow:0 0 10px rgba(251,191,36,.3);background:rgba(251,191,36,.12)} 50%{box-shadow:0 0 28px rgba(251,191,36,.6);background:rgba(251,191,36,.22)} }
+@keyframes wx-badge-rain  { 0%,100%{box-shadow:0 0 10px rgba(59,130,246,.3);background:rgba(59,130,246,.12)} 50%{box-shadow:0 0 22px rgba(59,130,246,.55);background:rgba(59,130,246,.2)} }
+@keyframes wx-badge-cloud { 0%,100%{box-shadow:0 0 8px rgba(96,165,250,.25);background:rgba(96,165,250,.1)} 50%{box-shadow:0 0 22px rgba(96,165,250,.55);background:rgba(96,165,250,.2)} }
+@keyframes wx-badge-storm { 0%,88%,92%,100%{box-shadow:0 0 10px rgba(168,85,247,.3);background:rgba(168,85,247,.12)} 90%{box-shadow:0 0 40px rgba(168,85,247,.9);background:rgba(168,85,247,.35)} }
+@keyframes wx-badge-mist  { 0%,100%{box-shadow:0 0 8px rgba(129,140,248,.2);background:rgba(129,140,248,.08)} 50%{box-shadow:0 0 18px rgba(129,140,248,.4);background:rgba(129,140,248,.16)} }
+@keyframes wx-badge-snow  { 0%,100%{box-shadow:0 0 10px rgba(6,182,212,.3);background:rgba(6,182,212,.1)} 50%{box-shadow:0 0 22px rgba(6,182,212,.55);background:rgba(6,182,212,.2)} }
+@keyframes wx-badge-dust  { 0%,100%{box-shadow:0 0 10px rgba(217,119,6,.3);background:rgba(217,119,6,.12)} 50%{box-shadow:0 0 22px rgba(217,119,6,.55);background:rgba(217,119,6,.22)} }
+@keyframes wx-badge-night { 0%,100%{box-shadow:0 0 12px rgba(99,102,241,.35);background:rgba(99,102,241,.12)} 50%{box-shadow:0 0 28px rgba(99,102,241,.7);background:rgba(99,102,241,.22)} }
+
+.ms-player[data-weather="Clear"]        .ms-wx-badge { animation: wx-badge-sun   2.5s ease-in-out infinite; }
+.ms-player[data-weather="Night"]        .ms-wx-badge { animation: wx-badge-night 3s   ease-in-out infinite; }
+.ms-player[data-weather="Rain"]         .ms-wx-badge { animation: wx-badge-rain  2s   ease-in-out infinite; }
+.ms-player[data-weather="Clouds"]       .ms-wx-badge { animation: wx-badge-cloud 3s   ease-in-out infinite; }
+.ms-player[data-weather="Thunderstorm"] .ms-wx-badge { animation: wx-badge-storm 2.5s ease-in-out infinite; }
+.ms-player[data-weather="Mist"]         .ms-wx-badge { animation: wx-badge-mist  3.5s ease-in-out infinite; }
+.ms-player[data-weather="Snow"]         .ms-wx-badge { animation: wx-badge-snow  2.5s ease-in-out infinite; }
+.ms-player[data-weather="Dust"]         .ms-wx-badge { animation: wx-badge-dust  2.5s ease-in-out infinite; }
+
+/* emoji animations — no awkward rotations */
+@keyframes wx-float   { 0%,100%{transform:translateY(0)}    50%{transform:translateY(-6px)} }
+@keyframes wx-breathe { 0%,100%{transform:scale(1)}         50%{transform:scale(1.18)} }
+@keyframes wx-drip    { 0%,100%{transform:translateY(0);opacity:1} 50%{transform:translateY(5px);opacity:.75} }
+@keyframes wx-flash   { 0%,87%,93%,100%{opacity:1}          90%{opacity:.05} }
+@keyframes wx-fade    { 0%,100%{opacity:1}                  50%{opacity:.35} }
+@keyframes wx-sway    { 0%,100%{transform:rotate(-8deg)}    50%{transform:rotate(8deg)} }
+@keyframes wx-spin    { to{transform:rotate(360deg)} }
+
+.wx-sunny { animation: wx-breathe 2.5s ease-in-out infinite; }
+.wx-cloud { animation: wx-float   3.5s ease-in-out infinite; }
+.wx-rain  { animation: wx-drip    1.4s ease-in-out infinite; }
+.wx-storm { animation: wx-flash   2.5s ease-in-out infinite; }
+.wx-mist  { animation: wx-fade    3.5s ease-in-out infinite; }
+.wx-snow  { animation: wx-sway    2.2s ease-in-out infinite; }
+.wx-dust  { animation: wx-spin    4s   linear      infinite; }
+
+/* ── album art weather overlay ─────────────────────────────────────────────── */
+/* sits above the art image, clipped by overflow:hidden on ms-art-wrap         */
+.ms-art-wx-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Clear — warm diagonal light ray that breathes with the beat */
+.ms-player[data-weather="Clear"] .ms-art-wx-overlay {
+  background: linear-gradient(135deg, rgba(251,191,36,0.22) 0%, transparent 55%);
+  animation: wx-overlay-sun 3s ease-in-out infinite;
+}
+@keyframes wx-overlay-sun {
+  0%,100% { opacity: 0.4; }
+  50%      { opacity: 1;   }
+}
+
+/* Rain — glassy sheen that slides sideways, simulating wet reflection */
+.ms-player[data-weather="Rain"] .ms-art-wx-overlay {
+  background: linear-gradient(120deg,
+    transparent 20%,
+    rgba(255,255,255,0.18) 38%,
+    rgba(255,255,255,0.06) 44%,
+    transparent 62%);
+  animation: wx-overlay-rain 4s ease-in-out infinite;
+}
+@keyframes wx-overlay-rain {
+  0%,100% { transform: translateX(-10px); opacity: 0.5; }
+  50%      { transform: translateX( 10px); opacity: 1;   }
+}
+
+/* Snow — frosted top edge + ice-blue border */
+.ms-player[data-weather="Snow"] .ms-art-wrap {
+  border-color: rgba(186,230,253,0.65);
+}
+.ms-player[data-weather="Snow"] .ms-art-wx-overlay {
+  background: linear-gradient(to bottom, rgba(224,242,255,0.16) 0%, transparent 45%);
+}
+
+/* Thunderstorm — flash bursts synced roughly with the canvas lightning */
+.ms-player[data-weather="Thunderstorm"] .ms-art-wx-overlay {
+  background: rgba(210,190,255,0.5);
+  opacity: 0;
+  animation: wx-overlay-storm 3.5s ease-in-out infinite;
+}
+@keyframes wx-overlay-storm {
+  0%,80%,88%,94%,100% { opacity: 0;    }
+  84%,91%              { opacity: 0.38; }
+}
+
+/* Clouds — very faint overcast tint, no hard shapes */
+.ms-player[data-weather="Clouds"] .ms-art-wx-overlay {
+  background: linear-gradient(to bottom, rgba(120,140,175,0.10) 0%, transparent 55%);
+  animation: wx-overlay-clouds 6s ease-in-out infinite;
+}
+@keyframes wx-overlay-clouds {
+  0%,100% { opacity: 0.5; }
+  50%      { opacity: 1;   }
+}
+
+/* Mist — ghostly lavender haze that pulses */
+.ms-player[data-weather="Mist"] .ms-art-wx-overlay {
+  background: rgba(200,215,255,0.09);
+  animation: wx-overlay-mist 5s ease-in-out infinite;
+}
+@keyframes wx-overlay-mist {
+  0%,100% { opacity: 0.3; }
+  50%      { opacity: 1;   }
+}
+
+/* Night — cool indigo veil that deepens on the beat */
+.ms-player[data-weather="Night"] .ms-art-wx-overlay {
+  background: rgba(99,102,241,0.11);
+  animation: wx-overlay-night 3.5s ease-in-out infinite;
+}
+@keyframes wx-overlay-night {
+  0%,100% { opacity: 0.35; }
+  50%      { opacity: 1;    }
+}
+
+/* Dust — warm amber tint that pulses */
+.ms-player[data-weather="Dust"] .ms-art-wx-overlay {
+  background: rgba(217,119,6,0.13);
+  animation: wx-overlay-dust 3s ease-in-out infinite alternate;
+}
+@keyframes wx-overlay-dust {
+  from { opacity: 0.4; }
+  to   { opacity: 0.9; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ONBOARDING SCREEN — single page, atmospheric dark
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes ms-screen-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ms-onboard-root {
+  padding: 0;
+  background: #0c0c12;
+  align-items: stretch;
+  position: relative;
+  overflow: hidden;
+}
+
+/* base static ambient bloom */
+.ms-onboard-root::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% -5%,  rgba(244,114,182,0.09) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 105%, rgba(139,92,246,0.06)  0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Aurora drift blobs ── */
+.ms-aurora {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ms-aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+}
+
+.ms-aurora-blob--1 {
+  width: 520px;
+  height: 520px;
+  background: var(--ui-accent, #F472B6);
+  opacity: 0.045;
+  top: -15%;
+  left: -12%;
+  animation: aurora-drift-1 28s ease-in-out infinite;
+}
+
+.ms-aurora-blob--2 {
+  width: 420px;
+  height: 420px;
+  background: #818CF8;
+  opacity: 0.038;
+  bottom: 5%;
+  right: -14%;
+  animation: aurora-drift-2 36s ease-in-out infinite;
+}
+
+.ms-aurora-blob--3 {
+  width: 360px;
+  height: 360px;
+  background: #A78BFA;
+  opacity: 0.03;
+  top: 45%;
+  left: 25%;
+  animation: aurora-drift-3 44s ease-in-out infinite;
+}
+
+@keyframes aurora-drift-1 {
+  0%, 100% { transform: translate(0, 0)        scale(1);    }
+  33%       { transform: translate(40px, 32px)  scale(1.04); }
+  66%       { transform: translate(-20px, 52px) scale(0.97); }
+}
+
+@keyframes aurora-drift-2 {
+  0%, 100% { transform: translate(0, 0)         scale(1);    }
+  40%       { transform: translate(-52px, -40px) scale(1.06); }
+  70%       { transform: translate(32px, 20px)   scale(0.96); }
+}
+
+@keyframes aurora-drift-3 {
+  0%, 100% { transform: translate(0, 0)         scale(1);    }
+  50%       { transform: translate(-38px, -28px) scale(1.07); }
+}
+
+/* ── Floating music notes ── */
+.ms-notes-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ms-note {
+  position: absolute;
+  color: var(--ui-accent, #F472B6);
+  opacity: 0;
+  user-select: none;
+  animation: note-dance ease-in-out 1 forwards;
+}
+
+/* cursor notes: fixed position relative to viewport */
+.ms-cursor-note {
+  position: fixed !important;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+@keyframes note-dance {
+  0%  {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg) scale(0.5);
+  }
+  12% {
+    opacity: 0.38;
+    transform: translate(0, -10px) rotate(calc(var(--rotate, 8deg) * -0.5)) scale(1.15);
+  }
+  28% {
+    opacity: 0.36;
+    transform: translate(var(--sway, 10px), 5px) rotate(var(--rotate, 8deg)) scale(0.95);
+  }
+  46% {
+    opacity: 0.32;
+    transform: translate(calc(var(--sway, 10px) * -0.8), -9px) rotate(calc(var(--rotate, 8deg) * -0.7)) scale(1.08);
+  }
+  63% {
+    opacity: 0.28;
+    transform: translate(calc(var(--sway, 10px) * 0.6), 7px) rotate(calc(var(--rotate, 8deg) * 0.4)) scale(1);
+  }
+  80% {
+    opacity: 0.12;
+    transform: translate(calc(var(--sway, 10px) * -0.3), -4px) rotate(calc(var(--rotate, 8deg) * -0.2)) scale(0.88);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg) scale(0.6);
+  }
+}
+
+/* ── Onboard body ── */
+.ms-onboard-body {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  animation: ms-screen-in 0.4s ease-out both;
+}
+
+/* ── Brand header ── */
+.ms-ob-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.5rem 0 0;
+  gap: 8px;
+}
+
+.ms-ob-logo {
+  font-size: 30px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@keyframes ms-wave-bob {
+  0%, 100% { transform: translateY(0);   }
+  50%       { transform: translateY(-3px); }
+}
+
+.ms-ob-wave {
+  display: inline-block;
+  color: var(--ui-accent, #F472B6);
+  animation: ms-wave-bob 3s ease-in-out infinite;
+  transition: color 0.5s ease;
+}
+
+.ms-ob-tagline {
+  font-size: 13px;
+  color: rgba(255,255,255,0.48);
+  letter-spacing: 0.07em;
+  font-weight: 500;
+}
+
+/* ── Sections ── */
+.ms-ob-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ms-ob-section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ms-ob-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255,255,255,0.55);
+}
+
+.ms-ob-section-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.38);
+  font-weight: 500;
+}
+
+/* ── Mood grid ── */
+.ms-onboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.ms-onboard-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 20px 8px 18px;
+  min-height: 92px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.72);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.ms-onboard-pill:hover {
+  background: var(--mb, rgba(255,255,255,0.07));
+  border-color: var(--mbd, rgba(255,255,255,0.18));
+  color: var(--mc, rgba(255,255,255,0.9));
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+
+.ms-onboard-pill.active {
+  background: var(--mb, rgba(255,255,255,0.08));
+  border-color: var(--mbd, rgba(255,255,255,0.25));
+  color: var(--mc, #fff);
+  box-shadow: 0 0 22px var(--mg, rgba(255,255,255,0.1)), 0 4px 16px rgba(0,0,0,0.35);
+  transform: scale(1.05);
+}
+
+.ms-onboard-pill-emoji {
+  font-size: 26px;
+  line-height: 1;
+  transition: transform 0.2s;
+  font-style: normal;
+}
+
+.ms-onboard-pill:hover .ms-onboard-pill-emoji,
+.ms-onboard-pill.active .ms-onboard-pill-emoji {
+  transform: scale(1.15);
+}
+
+.ms-onboard-pill-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+/* ── CTA area ── */
+.ms-ob-cta-area {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding-top: 0.25rem;
+}
+
+@keyframes ms-chip-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+.ms-ob-mood-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 8px 18px;
+  border-radius: 99px;
+  border: 1px solid var(--mbd, rgba(255,255,255,0.15));
+  background: var(--mb,  rgba(255,255,255,0.05));
+  color: var(--mc, rgba(255,255,255,0.6));
+  font-size: 13px;
+  font-weight: 600;
+  animation: ms-chip-in 0.35s ease-out both;
+  backdrop-filter: blur(6px);
+}
+
+/* ── Submit CTA — ghost until mood picked, then wakes up ── */
+@keyframes ms-cta-breathe {
+  0%, 100% { box-shadow: 0 4px 20px var(--ui-glow, rgba(244,114,182,0.28)); }
+  50%       { box-shadow: 0 4px 36px var(--ui-accent, rgba(244,114,182,0.48)); }
+}
+
+.ms-onboard-cta {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.2);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: not-allowed;
+  letter-spacing: 0.03em;
+  transition: background 0.5s ease, color 0.5s ease, border-color 0.4s ease, transform 0.15s;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ms-onboard-cta.ready {
+  background: linear-gradient(
+    135deg,
+    var(--ui-accent, #F472B6) 0%,
+    color-mix(in srgb, var(--ui-accent, #F472B6) 60%, #000) 100%
+  );
+  color: #fff;
+  border-color: transparent;
+  cursor: pointer;
+  animation: ms-cta-breathe 2.5s ease-in-out infinite;
+}
+
+.ms-onboard-cta.ready:hover {
+  transform: translateY(-1px);
+  animation: none;
+  box-shadow: 0 6px 42px var(--ui-glow, rgba(244,114,182,0.65));
+}
+
+.ms-onboard-cta.ready:disabled {
+  opacity: 0.72;
+  animation: none;
+  cursor: not-allowed;
+}
+
+/* force dark styles on lang strip inside onboard */
+.ms-onboard-root .ms-lang-strip-btn {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.09);
+  color: rgba(255,255,255,0.45);
+}
+.ms-onboard-root .ms-lang-strip-btn:hover {
+  border-color: var(--ui-border, rgba(244,114,182,0.45));
+  color: var(--ui-accent, #F9A8D4);
+  background: var(--ui-bg, rgba(244,114,182,0.08));
+}
+.ms-onboard-root .ms-lang-strip-btn.active {
+  background: var(--ui-bg, rgba(244,114,182,0.12));
+  border-color: var(--ui-border, rgba(244,114,182,0.5));
+  color: var(--ui-accent, #FCA5C5);
+  box-shadow: 0 0 10px var(--ui-glow, rgba(244,114,182,0.2));
+  font-weight: 600;
+}
+
+/* force dark styles on mode cards inside onboard */
+.ms-onboard-root .ms-mode-card {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.09);
+}
+.ms-onboard-root .ms-mode-card:hover {
+  border-color: var(--ui-border, rgba(244,114,182,0.4));
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.ms-onboard-root .ms-mode-card.active {
+  background: var(--ui-bg, rgba(244,114,182,0.1));
+  border-color: var(--ui-border, rgba(244,114,182,0.5));
+  box-shadow: 0 0 18px var(--ui-glow, rgba(244,114,182,0.18));
+}
+.ms-onboard-root .ms-mode-card-name { color: rgba(255,255,255,0.92); font-weight: 700; }
+.ms-onboard-root .ms-mode-card-desc { color: rgba(255,255,255,0.52); font-weight: 500; }
+.ms-onboard-root .ms-mode-card.active .ms-mode-card-name { color: #fff; }
+.ms-onboard-root .ms-mode-card.active .ms-mode-card-dot {
+  background: var(--ui-accent, #F472B6);
+  border-color: var(--ui-accent, #F472B6);
+  box-shadow: 0 0 8px var(--ui-glow, rgba(244,114,182,0.5));
+}
+.ms-onboard-root .ms-mode-card-dot { border-color: rgba(255,255,255,0.2); }
+
+@media (max-width: 400px) {
+  .ms-onboard-grid { grid-template-columns: repeat(2, 1fr); }
 }
