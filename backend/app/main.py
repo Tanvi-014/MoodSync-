@@ -147,7 +147,7 @@ VIBE_QUERIES_INDIAN = {
 # bypassing the bollywood/hindi template so the exact song always gets a shot.
 HINDI_SONG_PINS = {
     "sad":      ["Tum Hi Ho", "Kabhi Jo Badal", "Husn Anuv Jain"],
-    "romantic": ["Anuv Jain romantic", "Humdard Arijit Singh"],
+    "romantic": ["Anuv Jain romantic", "Humdard Arijit Singh", "Tere Aas Paas", "Saara Anuv Jain"],
     "calm":     ["Agar Tum Saath Ho", "Sukoon Mila"],
     "party":    ["Tareefan"],
     "happy":    ["Malang Sajna", "Pal Pal Dil Ke Paas"],
