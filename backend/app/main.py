@@ -438,13 +438,22 @@ async def get_recommendations(base_vibe: str, adjusted_energy: int, language: st
     if base_vibe == "happy" and cfg.get("indian_vibes"):
         cfg = {**cfg, "required_genre": ["indian pop","indie pop","pop"]}
 
+    # Focus needs instrumental artists in fallback — override artist_queries
+    if base_vibe == "focus" and not cfg.get("indian_vibes"):
+        cfg = {**cfg, "artist_queries": ["Yann Tiersen","Olafur Arnalds","Johann Johannsson","Ennio Morricone","Ramin Djawadi"]}
+    if base_vibe == "focus" and cfg.get("indian_vibes"):
+        cfg = {**cfg, "artist_queries": ["Ilaiyaraaja","AR Rahman","M M Keeravani","background score instrumental"]}
+
     seen_ids, seen_titles, seen_artists = set(), set(), {}
     MAX_PER_ARTIST = 2
+
+    # Focus uses more vibe terms to fill pool with instrumental variety
+    term_limit = 4 if base_vibe == "focus" else 2
 
     # Build vibe template queries
     vibe_queries = [build_query(tmpl, vibe, energy_kw)
                     for tmpl in cfg["primary_queries"]
-                    for vibe in vibe_terms[:2]]
+                    for vibe in vibe_terms[:term_limit]]
 
     if vibe_terms:
         if cfg.get("indian_vibes"):
