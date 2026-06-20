@@ -458,12 +458,11 @@ async def get_recommendations(base_vibe: str, adjusted_energy: int, language: st
             vibe_queries.insert(0, f"{weather_kw} {vibe_terms[0]}")
 
     pin_list = HINDI_SONG_PINS.get(base_vibe, []) if cfg.get("indian_vibes") else ENGLISH_SONG_PINS.get(base_vibe, [])
-    pin_cfg  = {**cfg, "required_genre": None}
 
     # ── Batch 1: pins + vibe queries all fire in parallel ─────────────────────
     async with httpx.AsyncClient(timeout=10) as client:
         batch1 = await asyncio.gather(
-            *[_itunes(client, q, country, 5)  for q in pin_list],
+            *[_itunes(client, q, country, 10) for q in pin_list],
             *[_itunes(client, q, country, 25) for q in vibe_queries],
             return_exceptions=True,
         )
@@ -471,10 +470,27 @@ async def get_recommendations(base_vibe: str, adjusted_energy: int, language: st
     pin_results  = batch1[:len(pin_list)]
     vibe_results = batch1[len(pin_list):]
 
+    # Pins use completely isolated dedup — no genre filter, no artist cap.
+    # Only rule: no duplicate track IDs within the pin list itself.
+    pin_seen   = set()
     pin_tracks = []
     for items in pin_results:
-        if not isinstance(items, Exception):
-            _collect(items, pin_tracks, seen_ids, seen_titles, seen_artists, pin_cfg, MAX_PER_ARTIST, take_first=True)
+        if isinstance(items, Exception):
+            continue
+        for item in items:
+            tid = item.get("trackId")
+            if not tid or tid in pin_seen:
+                continue
+            t = format_track(item)
+            if t:
+                pin_seen.add(tid)
+                pin_tracks.append(t)
+                break  # one per pin query
+
+    # Merge pin track IDs into main seen sets so pool won't repeat them
+    seen_ids.update(pin_seen)
+    for t in pin_tracks:
+        seen_titles.add(t.get("title", "").strip().lower())
 
     pool = []
     for items in vibe_results:
