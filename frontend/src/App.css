@@ -362,7 +362,7 @@ html, body {
 .ms-lang-flag { font-size: 20px; line-height: 1; }
 
 .ms-lang-name {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
   text-align: center;
   white-space: nowrap;
@@ -1692,7 +1692,7 @@ html, body {
 }
 
 .ms-ob-logo {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 900;
   color: #fff;
   letter-spacing: -0.6px;
@@ -1714,7 +1714,7 @@ html, body {
 }
 
 .ms-ob-tagline {
-  font-size: 13px;
+  font-size: 14px;
   color: rgba(255,255,255,0.48);
   letter-spacing: 0.07em;
   font-weight: 500;
@@ -1734,7 +1734,7 @@ html, body {
 }
 
 .ms-ob-section-label {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.6px;
@@ -1742,7 +1742,7 @@ html, body {
 }
 
 .ms-ob-section-sub {
-  font-size: 12px;
+  font-size: 13px;
   color: rgba(255,255,255,0.38);
   font-weight: 500;
 }
@@ -1789,7 +1789,7 @@ html, body {
 }
 
 .ms-onboard-pill-emoji {
-  font-size: 21px;
+  font-size: 24px;
   line-height: 1;
   transition: transform 0.2s;
   font-style: normal;
@@ -1801,7 +1801,7 @@ html, body {
 }
 
 .ms-onboard-pill-label {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-shadow: 0 1px 4px rgba(0,0,0,0.5);
@@ -1831,7 +1831,7 @@ html, body {
   border: 1px solid var(--mbd, rgba(255,255,255,0.15));
   background: var(--mb,  rgba(255,255,255,0.05));
   color: var(--mc, rgba(255,255,255,0.6));
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   animation: ms-chip-in 0.35s ease-out both;
   backdrop-filter: blur(6px);
@@ -1850,7 +1850,7 @@ html, body {
   border: 1px solid rgba(255,255,255,0.08);
   background: rgba(255,255,255,0.04);
   color: rgba(255,255,255,0.2);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   font-family: inherit;
   cursor: not-allowed;
