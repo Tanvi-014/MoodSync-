@@ -102,7 +102,7 @@ VIBE_QUERIES = {
     "sad":       ["Olivia Rodrigo","LAUV","Sasha Alex Sloan","heartbreak pop","sad indie pop"],
     "stressed":  ["Ed Sheeran","Shawn Mendes","Charlie Puth","calming soft songs","gentle acoustic pop"],
     "focus":     ["study focus music","concentration work beats","productive instrumental"],
-    "romantic":  ["Ed Sheeran","Charlie Puth","Shawn Mendes","romantic love songs","sweet love ballads"],
+    "romantic":  ["Ed Sheeran","Charlie Puth","Shawn Mendes","Taylor Swift","James Arthur","Ellie Goulding","romantic love songs","sweet love ballads"],
     "nostalgic": ["Taylor Swift","Maroon 5","The Cranberries","2010s pop hits","throwback indie pop"],
     "excited":   ["Bruno Mars","Justin Bieber","Selena Gomez","hype upbeat pop","exciting dance pop"],
     "calm":      ["Ed Sheeran","Shawn Mendes","Charlie Puth","soft acoustic songs","slow gentle ballads"],
@@ -126,10 +126,10 @@ VIBE_QUERIES_INDIAN = {
     "stressed":  ["Lucky Ali","Mohit Chauhan","soothing calm songs","soft relaxing"],
     "nostalgic": ["Atif Aslam","KK","Mohit Chauhan","Pritam","2000s hindi songs"],
     "dreamy":    ["soft dreamy","gentle dreamy","dreamy melody"],
-    "uplifting": ["Shankar Mahadevan","Sukhwinder Singh","motivational songs","feel good inspirational"],
+    "uplifting": ["Sukhwinder Singh","motivational songs","feel good inspirational"],
     "healing":   ["Jubin Nautiyal","Arijit Singh","healing songs","emotional comfort"],
     "excited":   ["pump up","hype energy","exciting upbeat"],
-    "energetic": ["Shankar Mahadevan","Guru Randhawa","Vishal-Shekhar","dance pop","high energy dance"],
+    "energetic": ["Shankar Mahadevan","Guru Randhawa","Vishal-Shekhar","Sunidhi Chauhan","dance pop","high energy dance"],
     "angry":     ["intense powerful","angry energy","rage intense"],
     "fresh":     ["trending songs","new songs","latest hits","top chart songs"],
     "chill":     ["Lucky Ali","Mohit Chauhan","chill relaxed","easy chill"],
@@ -139,7 +139,7 @@ VIBE_QUERIES_INDIAN = {
     "calm":      ["Shreya Ghoshal","Monali Thakur","Kavita Seth","soft slow","mellow gentle"],
     "happy":     ["Iqlipse Nova","Aditya Rikhari","Akshath"],
     "sad":       ["Arijit Singh sad","Atif Aslam","Anuv Jain","dil dard","emotional breakup"],
-    "romantic":  ["Armaan Malik","Darshan Raval","Shreya Ghoshal","Pritam","Anuv Jain","romantic love","pyaar songs"],
+    "romantic":  ["Armaan Malik","Darshan Raval","Shreya Ghoshal","Pritam","Anuv Jain","Arijit Singh romantic","romantic love","pyaar songs"],
     "party":     ["Badshah","Diljit Dosanjh","Yo Yo Honey Singh","bhangra party","dance hits"],
 }
 
@@ -147,9 +147,26 @@ VIBE_QUERIES_INDIAN = {
 # bypassing the bollywood/hindi template so the exact song always gets a shot.
 HINDI_SONG_PINS = {
     "sad":      ["Tum Hi Ho", "Kabhi Jo Badal", "Husn Anuv Jain"],
-    "romantic": ["Anuv Jain romantic"],
-    "calm":     ["Agar Tum Saath Ho"],
+    "romantic": ["Anuv Jain romantic", "Humdard Arijit Singh"],
+    "calm":     ["Agar Tum Saath Ho", "Sukoon Mila"],
     "party":    ["Tareefan"],
+    "happy":    ["Malang Sajna", "Pal Pal Dil Ke Paas"],
+}
+
+# Same concept for English — direct song title searches added to vibe queries.
+ENGLISH_SONG_PINS = {
+    "romantic": ["Love Story Taylor Swift", "Perfect Ed Sheeran", "Blue"],
+}
+
+# For Hindi/Indian, shift vibes map to abstract terms (e.g. "uplifting") that don't
+# search well on iTunes. Remap them to the closest practical match-mode vibe.
+SHIFT_VIBE_REMAP_INDIAN = {
+    "uplifting": "happy",
+    "soothing":  "calm",
+    "fresh":     "happy",
+    "mellow":    "calm",
+    "upbeat":    "party",
+    "chill":     "calm",
 }
 
 # ─── language config ─────────────────────────────────────────────────────────
@@ -370,6 +387,9 @@ def get_recommendations(base_vibe: str, adjusted_energy: int, language: str, wea
     cfg       = LANGUAGE_CONFIG.get(language, LANGUAGE_CONFIG["English"])
     # Indian languages need short modifier terms; English uses full descriptive phrases
     vibe_pool = VIBE_QUERIES_INDIAN if cfg.get("indian_vibes") else VIBE_QUERIES
+    # Remap abstract shift vibes (e.g. "uplifting") to concrete iTunes-friendly equivalents
+    if cfg.get("indian_vibes") and base_vibe in SHIFT_VIBE_REMAP_INDIAN:
+        base_vibe = SHIFT_VIBE_REMAP_INDIAN[base_vibe]
     vibe_terms = vibe_pool.get(base_vibe) or VIBE_QUERIES.get(base_vibe, VIBE_QUERIES["calm"])
     energy_kw  = ENERGY_SEARCH_KEYWORD.get(adjusted_energy, "")
     weather_kw = WEATHER_SEARCH_KEYWORD.get(weather, "")
@@ -406,9 +426,11 @@ def get_recommendations(base_vibe: str, adjusted_energy: int, language: str, wea
         elif weather_kw:
             vibe_queries.insert(0, f"{weather_kw} {vibe_terms[0]}")
 
-    # Pinned song searches for Hindi — direct title queries, no template wrapping
+    # Pinned song searches — direct title queries, no template wrapping
     if cfg.get("indian_vibes"):
         vibe_queries.extend(HINDI_SONG_PINS.get(base_vibe, []))
+    else:
+        vibe_queries.extend(ENGLISH_SONG_PINS.get(base_vibe, []))
 
     pool = []
 
