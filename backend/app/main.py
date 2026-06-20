@@ -476,8 +476,9 @@ async def get_recommendations(base_vibe: str, adjusted_energy: int, language: st
             vibe_queries.insert(0, f"{weather_kw} {vibe_terms[0]}")
 
     full_pin_list = HINDI_SONG_PINS.get(base_vibe, []) if cfg.get("indian_vibes") else ENGLISH_SONG_PINS.get(base_vibe, [])
-    # Shuffle + cap at 2 so the same pair doesn't appear every time
-    pin_list = random.sample(full_pin_list, min(2, len(full_pin_list))) if full_pin_list else []
+    # Pick 0-2 pins at random — pins appear occasionally, not every time
+    k = random.randint(0, min(2, len(full_pin_list)))
+    pin_list = random.sample(full_pin_list, k) if k else []
 
     # ── Batch 1: pins + vibe queries all fire in parallel ─────────────────────
     async with httpx.AsyncClient(timeout=10) as client:
