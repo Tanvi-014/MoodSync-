@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -287,6 +287,24 @@ LANGUAGE_CONFIG = {
 }
 
 
+async def get_location_from_ip(ip: str) -> tuple[float | None, float | None]:
+    """Fallback: approximate lat/lon from client IP via ip-api.com (free, no key)."""
+    try:
+        # Strip port if present, skip loopback/private IPs
+        ip = ip.split(",")[0].strip().split(":")[0]
+        if ip in ("127.0.0.1", "::1", "localhost") or ip.startswith("192.168.") or ip.startswith("10."):
+            return None, None
+        async with httpx.AsyncClient(timeout=4) as client:
+            r = await client.get(f"http://ip-api.com/json/{ip}?fields=status,lat,lon")
+        if r.status_code == 200:
+            d = r.json()
+            if d.get("status") == "success":
+                return d["lat"], d["lon"]
+    except Exception:
+        pass
+    return None, None
+
+
 async def get_weather_data(lat: float | None, lon: float | None) -> dict:
     if lat is None or lon is None:
         return {"condition": "Clear", "is_night": False}
@@ -531,7 +549,7 @@ async def weather_preview(lat: float, lon: float):
 
 
 @app.post("/recommend")
-async def recommend(user: UserInput):
+async def recommend(user: UserInput, request: Request):
     if user.mode not in {"match", "shift"}:
         raise HTTPException(status_code=400, detail="mode must be 'match' or 'shift'")
     if user.mood not in MATCH_MODE:
@@ -541,8 +559,14 @@ async def recommend(user: UserInput):
     if user.language not in LANGUAGE_CONFIG:
         raise HTTPException(status_code=400, detail=f"unsupported language: {user.language}")
 
+    lat, lon = user.lat, user.lon
+    if lat is None or lon is None:
+        # Browser geolocation denied/unavailable — fall back to IP-based location
+        client_ip = request.headers.get("X-Forwarded-For") or (request.client.host if request.client else "")
+        lat, lon  = await get_location_from_ip(client_ip)
+
     base_vibe       = MATCH_MODE[user.mood] if user.mode == "match" else SHIFT_MODE[user.mood]
-    weather_data    = await get_weather_data(user.lat, user.lon)
+    weather_data    = await get_weather_data(lat, lon)
     current_weather = normalize_weather(weather_data.get("condition", "Clear"))
     fit             = WEATHER_VIBE_FIT.get(current_weather, {}).get(base_vibe, 0)
     adjusted_energy = max(1, min(5, user.energy + fit))

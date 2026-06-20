@@ -761,7 +761,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 12px;
+  padding: 16px 14px;
   border-radius: 16px;
   border: 1.5px solid var(--border-strong);
   background: var(--bg-card);
@@ -1673,10 +1673,10 @@ html, body {
   max-width: 480px;
   width: 100%;
   margin: 0 auto;
-  padding: 1.5rem 1rem 3rem;
+  padding: 2.5rem 1rem 4rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 2rem;
   animation: ms-screen-in 0.4s ease-out both;
 }
 
@@ -1723,7 +1723,7 @@ html, body {
 .ms-ob-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 .ms-ob-section-head {
@@ -1757,9 +1757,9 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 13px 8px 11px;
-  min-height: 72px;
+  gap: 7px;
+  padding: 18px 8px 15px;
+  min-height: 86px;
   border-radius: 18px;
   border: 1.5px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.05);
