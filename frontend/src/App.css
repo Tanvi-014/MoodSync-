@@ -707,16 +707,15 @@ html, body {
 /* language horizontal strip */
 .ms-lang-strip {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  flex-wrap: nowrap;
 }
 
 .ms-lang-strip-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 7px;
-  padding: 9px 12px;
+  padding: 9px 16px;
   border-radius: 99px;
   border: 1.5px solid var(--border-strong);
   background: var(--bg-card);
@@ -725,9 +724,8 @@ html, body {
   font-weight: 500;
   font-family: inherit;
   white-space: nowrap;
+  flex-shrink: 0;
   cursor: pointer;
-  flex: 1;
-  min-width: 0;
   transition: all 0.15s;
 }
 .ms-lang-strip-btn:hover {
@@ -800,13 +798,13 @@ html, body {
 }
 
 .ms-mode-card-name {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.2px;
 }
 .ms-mode-card-desc {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
   margin-top: 3px;
 }
@@ -1670,7 +1668,7 @@ html, body {
   z-index: 1;
   height: 100dvh;
   min-height: 600px;
-  max-width: 558px;
+  max-width: 900px;
   width: 100%;
   margin: 0 auto;
   padding: 2rem 1rem 1rem;
@@ -1929,6 +1927,10 @@ html, body {
 }
 .ms-onboard-root .ms-mode-card-dot { border-color: rgba(255,255,255,0.2); }
 
-@media (max-width: 400px) {
+@media (max-width: 600px) {
   .ms-onboard-grid { grid-template-columns: repeat(2, 1fr); }
+  .ms-mode-cards { flex-direction: column; }
+}
+@media (max-width: 360px) {
+  .ms-onboard-grid { grid-template-columns: 1fr; }
 }
