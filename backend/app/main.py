@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from pathlib import Path
-import requests
+import httpx
+import asyncio
 import random
 import re
 import os
@@ -286,23 +287,21 @@ LANGUAGE_CONFIG = {
 }
 
 
-def get_weather_data(lat: float | None, lon: float | None) -> dict:
+async def get_weather_data(lat: float | None, lon: float | None) -> dict:
     if lat is None or lon is None:
-        # Can't determine local time without coordinates — default to day
         return {"condition": "Clear", "is_night": False}
-
-    url = (
-        "https://api.openweathermap.org/data/2.5/weather"
-        f"?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
-    )
     try:
-        r = requests.get(url, timeout=10)
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get(
+                "https://api.openweathermap.org/data/2.5/weather",
+                params={"lat": lat, "lon": lon, "appid": OPENWEATHER_API_KEY, "units": "metric"},
+            )
         if r.status_code != 200:
             return {}
         d = r.json()
-        dt      = d.get("dt", 0)
-        sunrise = d.get("sys", {}).get("sunrise", 0)
-        sunset  = d.get("sys", {}).get("sunset", 0)
+        dt       = d.get("dt", 0)
+        sunrise  = d.get("sys", {}).get("sunrise", 0)
+        sunset   = d.get("sys", {}).get("sunset", 0)
         is_night = bool(sunrise and sunset and (dt < sunrise or dt > sunset))
         return {
             "condition":       d["weather"][0]["main"],
@@ -329,13 +328,12 @@ def normalize_weather(raw: str) -> str:
     return m.get(raw, "Clear")
 
 
-def search_itunes(query: str, country: str = "IN", limit: int = 15) -> list:
+async def _itunes(client: httpx.AsyncClient, query: str, country: str, limit: int) -> list:
     try:
-        r = requests.get(
+        r = await client.get(
             "https://itunes.apple.com/search",
-            params={"term":query,"media":"music","entity":"song",
-                    "limit":limit,"country":country,"explicit":"No"},
-            timeout=10
+            params={"term": query, "media": "music", "entity": "song",
+                    "limit": limit, "country": country, "explicit": "No"},
         )
         if r.status_code != 200:
             return []
@@ -385,11 +383,33 @@ def _title_key(item: dict) -> str:
     return base.strip().lower()
 
 
-def get_recommendations(base_vibe: str, adjusted_energy: int, language: str, weather: str) -> list:
-    cfg       = LANGUAGE_CONFIG.get(language, LANGUAGE_CONFIG["English"])
-    # Indian languages need short modifier terms; English uses full descriptive phrases
-    vibe_pool = VIBE_QUERIES_INDIAN if cfg.get("indian_vibes") else VIBE_QUERIES
-    # Remap abstract shift vibes (e.g. "uplifting") to concrete iTunes-friendly equivalents
+def _collect(items, pool, seen_ids, seen_titles, seen_artists, cfg, max_per_artist=2, take_first=False):
+    """Dedup-filter items and append qualifying tracks to pool."""
+    for item in items:
+        track_id = item.get("trackId")
+        if not track_id or track_id in seen_ids:
+            continue
+        if not passes_genre_filter(item, cfg):
+            continue
+        title_key = _title_key(item)
+        if title_key in seen_titles:
+            continue
+        artist_key = item.get("artistName", "").strip().lower()
+        if seen_artists.get(artist_key, 0) >= max_per_artist:
+            continue
+        seen_ids.add(track_id)
+        seen_titles.add(title_key)
+        seen_artists[artist_key] = seen_artists.get(artist_key, 0) + 1
+        t = format_track(item)
+        if t:
+            pool.append(t)
+            if take_first:
+                break
+
+
+async def get_recommendations(base_vibe: str, adjusted_energy: int, language: str, weather: str) -> list:
+    cfg        = LANGUAGE_CONFIG.get(language, LANGUAGE_CONFIG["English"])
+    vibe_pool  = VIBE_QUERIES_INDIAN if cfg.get("indian_vibes") else VIBE_QUERIES
     if cfg.get("indian_vibes") and base_vibe in SHIFT_VIBE_REMAP_INDIAN:
         base_vibe = SHIFT_VIBE_REMAP_INDIAN[base_vibe]
     vibe_terms = vibe_pool.get(base_vibe) or VIBE_QUERIES.get(base_vibe, VIBE_QUERIES["calm"])
@@ -397,154 +417,89 @@ def get_recommendations(base_vibe: str, adjusted_energy: int, language: str, wea
     weather_kw = WEATHER_SEARCH_KEYWORD.get(weather, "")
     country    = cfg["country"]
 
-    # For happy vibe with Indian languages, tighten genre to indie pop only so
-    # "bollywood Iqlipse Nova" doesn't pull in sad mainstream Bollywood alongside it
     if base_vibe == "happy" and cfg.get("indian_vibes"):
         cfg = {**cfg, "required_genre": ["indian pop","indie pop","pop"]}
-    seen_ids     = set()
-    seen_titles  = set()
-    seen_artists = {}      # artist -> count, cap at MAX_PER_ARTIST across all phases
+
+    seen_ids, seen_titles, seen_artists = set(), set(), {}
     MAX_PER_ARTIST = 2
-    tracks       = []
 
-    # Phase 1 — vibe queries with full genre filter
-    vibe_queries = []
-    for tmpl in cfg["primary_queries"]:
-        for vibe in vibe_terms[:2]:
-            vibe_queries.append(build_query(tmpl, vibe, energy_kw))
+    # Build vibe template queries
+    vibe_queries = [build_query(tmpl, vibe, energy_kw)
+                    for tmpl in cfg["primary_queries"]
+                    for vibe in vibe_terms[:2]]
 
-    # Insert a weather-contextual query first so weather influences which songs
-    # surface, not just energy level. English and Indian use different keywords.
     if vibe_terms:
         if cfg.get("indian_vibes"):
             indian_wx_kw = WEATHER_SEARCH_KEYWORD_INDIAN.get(language, {}).get(weather)
             if indian_wx_kw:
-                # e.g. "bollywood baarish romantic" — language template + weather + vibe
                 lang_prefix = cfg["primary_queries"][0].split("{")[0].strip()
                 vibe_queries.insert(0, f"{lang_prefix} {indian_wx_kw} {vibe_terms[0]}".strip())
             elif weather_kw:
-                # no regional keyword for this condition — fall back to English weather term
                 vibe_queries.insert(0, f"{weather_kw} {vibe_terms[0]}")
         elif weather_kw:
             vibe_queries.insert(0, f"{weather_kw} {vibe_terms[0]}")
 
-    # Phase 0 — pinned songs: searched first, placed at front of result so they
-    # are never shuffled out of the top 7. Genre filter relaxed so specific titles
-    # (e.g. Husn tagged "Singer/Songwriter") aren't blocked by language filters.
-    pin_list   = HINDI_SONG_PINS.get(base_vibe, []) if cfg.get("indian_vibes") else ENGLISH_SONG_PINS.get(base_vibe, [])
-    pin_cfg    = {**cfg, "required_genre": None}
-    pin_tracks = []
+    pin_list = HINDI_SONG_PINS.get(base_vibe, []) if cfg.get("indian_vibes") else ENGLISH_SONG_PINS.get(base_vibe, [])
+    pin_cfg  = {**cfg, "required_genre": None}
 
-    for song in pin_list:
-        items = search_itunes(song, country=country, limit=5)
-        for item in items:
-            track_id = item.get("trackId")
-            if not track_id or track_id in seen_ids:
-                continue
-            if not passes_genre_filter(item, pin_cfg):
-                continue
-            title_key = _title_key(item)
-            if title_key in seen_titles:
-                continue
-            artist_key = item.get("artistName", "").strip().lower()
-            if seen_artists.get(artist_key, 0) >= MAX_PER_ARTIST:
-                continue
-            seen_ids.add(track_id)
-            seen_titles.add(title_key)
-            seen_artists[artist_key] = seen_artists.get(artist_key, 0) + 1
-            t = format_track(item)
-            if t:
-                pin_tracks.append(t)
-                break  # one track per pin query is enough
+    # ── Batch 1: pins + vibe queries all fire in parallel ─────────────────────
+    async with httpx.AsyncClient(timeout=10) as client:
+        batch1 = await asyncio.gather(
+            *[_itunes(client, q, country, 5)  for q in pin_list],
+            *[_itunes(client, q, country, 25) for q in vibe_queries],
+            return_exceptions=True,
+        )
+
+    pin_results  = batch1[:len(pin_list)]
+    vibe_results = batch1[len(pin_list):]
+
+    pin_tracks = []
+    for items in pin_results:
+        if not isinstance(items, Exception):
+            _collect(items, pin_tracks, seen_ids, seen_titles, seen_artists, pin_cfg, MAX_PER_ARTIST, take_first=True)
 
     pool = []
+    for items in vibe_results:
+        if not isinstance(items, Exception):
+            _collect(items, pool, seen_ids, seen_titles, seen_artists, cfg, MAX_PER_ARTIST)
 
-    for query in vibe_queries:
-        items = search_itunes(query, country=country, limit=25)
-        for item in items:
-            track_id = item.get("trackId")
-            if not track_id or track_id in seen_ids:
-                continue
-            if not passes_genre_filter(item, cfg):
-                continue
-            title_key = _title_key(item)
-            if title_key in seen_titles:
-                continue
-            artist_key = item.get("artistName", "").strip().lower()
-            if seen_artists.get(artist_key, 0) >= MAX_PER_ARTIST:
-                continue
-            seen_ids.add(track_id)
-            seen_titles.add(title_key)
-            seen_artists[artist_key] = seen_artists.get(artist_key, 0) + 1
-            t = format_track(item)
-            if t:
-                pool.append(t)
-
-    # Phase 2 — artist fallback; only when Phase 1 didn't yield enough
+    # ── Batch 2: fallback only if still short ─────────────────────────────────
     if len(pool) + len(pin_tracks) < 7:
-        artist_cfg = {**cfg, "required_genre": None}
-        mood_hint = "" if cfg.get("indian_vibes") else (vibe_terms[0] if vibe_terms else "")
-        for artist in cfg["artist_queries"]:
-            query = f"{artist} {mood_hint}".strip() if mood_hint else artist
-            items = search_itunes(query, country=country, limit=20)
-            for item in items:
-                track_id = item.get("trackId")
-                if not track_id or track_id in seen_ids:
-                    continue
-                if not passes_genre_filter(item, artist_cfg):
-                    continue
-                title_key = _title_key(item)
-                if title_key in seen_titles:
-                    continue
-                artist_key = item.get("artistName", "").strip().lower()
-                if seen_artists.get(artist_key, 0) >= MAX_PER_ARTIST:
-                    continue
-                seen_ids.add(track_id)
-                seen_titles.add(title_key)
-                seen_artists[artist_key] = seen_artists.get(artist_key, 0) + 1
-                t = format_track(item)
-                if t:
-                    pool.append(t)
+        mood_hint  = "" if cfg.get("indian_vibes") else (vibe_terms[0] if vibe_terms else "")
+        artist_qs  = [f"{a} {mood_hint}".strip() if mood_hint else a for a in cfg["artist_queries"]]
 
-    # Indie boost — always inject a few tracks from indie artists who get filtered out by
-    # genre in Phase 1 (e.g. Anuv Jain tagged "Pop" not "Bollywood"). Only for emotional vibes.
-    if base_vibe in ("sad", "healing", "nostalgic", "romantic") and cfg.get("indie_artists"):
-        indie_cfg = {**cfg, "required_genre": None}
-        mood_hint = vibe_terms[0] if vibe_terms else ""
-        for artist in cfg["indie_artists"]:
-            query = f"{artist} {mood_hint}".strip() if mood_hint else artist
-            items = search_itunes(query, country=country, limit=10)
-            for item in items:
-                track_id = item.get("trackId")
-                if not track_id or track_id in seen_ids:
-                    continue
-                if not passes_genre_filter(item, indie_cfg):
-                    continue
-                title_key = _title_key(item)
-                if title_key in seen_titles:
-                    continue
-                artist_key = item.get("artistName", "").strip().lower()
-                if seen_artists.get(artist_key, 0) >= MAX_PER_ARTIST:
-                    continue
-                seen_ids.add(track_id)
-                seen_titles.add(title_key)
-                seen_artists[artist_key] = seen_artists.get(artist_key, 0) + 1
-                t = format_track(item)
-                if t:
-                    pool.append(t)
+        indie_qs = []
+        if base_vibe in ("sad", "healing", "nostalgic", "romantic") and cfg.get("indie_artists"):
+            mh = vibe_terms[0] if vibe_terms else ""
+            indie_qs = [f"{a} {mh}".strip() if mh else a for a in cfg["indie_artists"]]
+
+        async with httpx.AsyncClient(timeout=10) as client:
+            batch2 = await asyncio.gather(
+                *[_itunes(client, q, country, 20) for q in artist_qs],
+                *[_itunes(client, q, country, 10) for q in indie_qs],
+                return_exceptions=True,
+            )
+
+        artist_cfg = {**cfg, "required_genre": None}
+        for items in batch2[:len(artist_qs)]:
+            if not isinstance(items, Exception):
+                _collect(items, pool, seen_ids, seen_titles, seen_artists, artist_cfg, MAX_PER_ARTIST)
+        for items in batch2[len(artist_qs):]:
+            if not isinstance(items, Exception):
+                _collect(items, pool, seen_ids, seen_titles, seen_artists, artist_cfg, MAX_PER_ARTIST)
 
     random.shuffle(pool)
     return (pin_tracks + pool)[:7]
 
 
 @app.get("/full-url")
-def get_full_url(song: str, artist: str):
+async def get_full_url(song: str, artist: str):
     try:
-        r = requests.get(
-            "https://saavn.dev/api/search/songs",
-            params={"query": f"{song} {artist}", "limit": 3},
-            timeout=4
-        )
+        async with httpx.AsyncClient(timeout=4) as client:
+            r = await client.get(
+                "https://saavn.dev/api/search/songs",
+                params={"query": f"{song} {artist}", "limit": 3},
+            )
         if r.status_code != 200:
             return {"url": None}
         results = r.json().get("data", {}).get("results", [])
@@ -563,8 +518,8 @@ def home():
 
 
 @app.get("/weather/preview")
-def weather_preview(lat: float, lon: float):
-    data = get_weather_data(lat, lon)
+async def weather_preview(lat: float, lon: float):
+    data = await get_weather_data(lat, lon)
     if not data:
         return {"condition": "Clear", "is_night": False, "temp_c": None, "city_name": ""}
     return {
@@ -576,7 +531,7 @@ def weather_preview(lat: float, lon: float):
 
 
 @app.post("/recommend")
-def recommend(user: UserInput):
+async def recommend(user: UserInput):
     if user.mode not in {"match", "shift"}:
         raise HTTPException(status_code=400, detail="mode must be 'match' or 'shift'")
     if user.mood not in MATCH_MODE:
@@ -587,18 +542,18 @@ def recommend(user: UserInput):
         raise HTTPException(status_code=400, detail=f"unsupported language: {user.language}")
 
     base_vibe       = MATCH_MODE[user.mood] if user.mode == "match" else SHIFT_MODE[user.mood]
-    weather_data    = get_weather_data(user.lat, user.lon)
+    weather_data    = await get_weather_data(user.lat, user.lon)
     current_weather = normalize_weather(weather_data.get("condition", "Clear"))
     fit             = WEATHER_VIBE_FIT.get(current_weather, {}).get(base_vibe, 0)
     adjusted_energy = max(1, min(5, user.energy + fit))
     intensity       = ENERGY_MAP[adjusted_energy]
-    results         = get_recommendations(base_vibe, adjusted_energy, user.language, current_weather)
+    results         = await get_recommendations(base_vibe, adjusted_energy, user.language, current_weather)
 
     weather_context = ""
     if weather_data.get("description"):
-        city_part = weather_data.get("city_name", "")
+        city_part    = weather_data.get("city_name", "")
         country_part = weather_data.get("country", "")
-        location = ", ".join(p for p in [city_part, country_part] if p)
+        location     = ", ".join(p for p in [city_part, country_part] if p)
         weather_context = (
             f"{weather_data['description'].title()}"
             + (f" in {location}" if location else "")
@@ -623,19 +578,22 @@ def recommend(user: UserInput):
 
 
 @app.get("/debug/language/{language}")
-def debug_language(language: str):
+async def debug_language(language: str):
     cfg = LANGUAGE_CONFIG.get(language)
     if not cfg:
         raise HTTPException(status_code=404, detail="language not found")
-    out = []
-    for tmpl in cfg["primary_queries"][:2]:
-        q = build_query(tmpl, "happy", "")
-        items = search_itunes(q, country=cfg["country"], limit=5)
-        out.append({
-            "query": q,
+    async with httpx.AsyncClient(timeout=10) as client:
+        tasks = [_itunes(client, build_query(tmpl, "happy", ""), cfg["country"], 5)
+                 for tmpl in cfg["primary_queries"][:2]]
+        results = await asyncio.gather(*tasks)
+    out = [
+        {
+            "query": build_query(tmpl, "happy", ""),
             "results": [
                 {"song": t.get("trackName"), "artist": t.get("artistName"), "genre": t.get("primaryGenreName")}
                 for t in items[:3]
             ]
-        })
+        }
+        for tmpl, items in zip(cfg["primary_queries"][:2], results)
+    ]
     return {"language": language, "tests": out}
