@@ -138,9 +138,18 @@ VIBE_QUERIES_INDIAN = {
     "upbeat":    ["upbeat dance","party upbeat","high energy dance"],
     "calm":      ["Shreya Ghoshal","Monali Thakur","Kavita Seth","soft slow","mellow gentle"],
     "happy":     ["Iqlipse Nova","Aditya Rikhari","Akshath"],
-    "sad":       ["Arijit Singh","Atif Aslam","Darshan Raval","dil dard","emotional breakup"],
-    "romantic":  ["Armaan Malik","Darshan Raval","Shreya Ghoshal","romantic love","pyaar songs"],
+    "sad":       ["Arijit Singh sad","Atif Aslam","Anuv Jain","dil dard","emotional breakup"],
+    "romantic":  ["Armaan Malik","Darshan Raval","Shreya Ghoshal","Pritam","Anuv Jain","romantic love","pyaar songs"],
     "party":     ["Badshah","Diljit Dosanjh","Yo Yo Honey Singh","bhangra party","dance hits"],
+}
+
+# Specific song title searches for Hindi — injected as direct iTunes queries,
+# bypassing the bollywood/hindi template so the exact song always gets a shot.
+HINDI_SONG_PINS = {
+    "sad":      ["Tum Hi Ho", "Kabhi Jo Badal", "Husn Anuv Jain"],
+    "romantic": ["Anuv Jain romantic"],
+    "calm":     ["Agar Tum Saath Ho"],
+    "party":    ["Tareefan"],
 }
 
 # ─── language config ─────────────────────────────────────────────────────────
@@ -396,6 +405,10 @@ def get_recommendations(base_vibe: str, adjusted_energy: int, language: str, wea
                 vibe_queries.insert(0, f"{weather_kw} {vibe_terms[0]}")
         elif weather_kw:
             vibe_queries.insert(0, f"{weather_kw} {vibe_terms[0]}")
+
+    # Pinned song searches for Hindi — direct title queries, no template wrapping
+    if cfg.get("indian_vibes"):
+        vibe_queries.extend(HINDI_SONG_PINS.get(base_vibe, []))
 
     pool = []
 
