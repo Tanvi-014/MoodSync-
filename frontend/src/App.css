@@ -160,7 +160,7 @@ html, body {
 
 .ms-container {
   width: 100%;
-  max-width: 560px;
+  max-width: 558px;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -931,7 +931,7 @@ html, body {
 
 .ms-player {
   width: 100%;
-  max-width: 560px;
+  max-width: 558px;
   margin: 0 auto;
   padding: 1.5rem 1.25rem 3rem;
   display: flex;
@@ -1670,13 +1670,13 @@ html, body {
   position: relative;
   z-index: 1;
   min-height: 100vh;
-  max-width: 560px;
+  max-width: 558px;
   width: 100%;
   margin: 0 auto;
   padding: 2.5rem 1rem 4rem;
   display: flex;
   flex-direction: column;
-  gap: 2.25rem;
+  gap: 2.5rem;
   animation: ms-screen-in 0.4s ease-out both;
 }
 
@@ -1759,7 +1759,7 @@ html, body {
   align-items: center;
   gap: 7px;
   padding: 18px 8px 15px;
-  min-height: 86px;
+  min-height: 90px;
   border-radius: 18px;
   border: 1.5px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.05);
