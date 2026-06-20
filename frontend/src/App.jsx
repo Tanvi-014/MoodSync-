@@ -134,6 +134,7 @@ export default function App() {
   const consecutiveFailRef  = useRef(0);
   const spPremiumBlockedRef = useRef(false);
   const spCurrentUriRef    = useRef(null); // URI of the track we last asked Spotify to play
+  const urlCacheRef         = useRef({});  // track key -> full audio URL
   const formBodyRef        = useRef(null);
   const noteCooldownRef    = useRef(0);
 
@@ -368,13 +369,23 @@ export default function App() {
     currentIdxRef.current = index;
     userPausedRef.current = false;
 
-    // Kick off JioSaavn lookup immediately — runs in parallel with Spotify search
-    // so if Spotify fails/is slow, full-song URL is already ready
+    // Full-song URL: check prefetch cache first, else fetch with 1.5s timeout.
+    // Runs in parallel with Spotify so fallback is ready with zero extra wait.
+    const trackKey = `${track.song}|||${track.artists?.[0] || ""}`;
     const saavnPromise = (async () => {
+      const cached = urlCacheRef.current[trackKey];
+      if (cached) return cached;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 1500);
       try {
         const params = new URLSearchParams({ song: track.song, artist: track.artists[0] || "" });
-        const res = await fetch(`${API_BASE}/full-url?${params}`);
-        if (res.ok) { const d = await res.json(); return d.url || null; }
+        const res = await fetch(`${API_BASE}/full-url?${params}`, { signal: controller.signal });
+        clearTimeout(timer);
+        if (res.ok) {
+          const d = await res.json();
+          if (d?.url) urlCacheRef.current[trackKey] = d.url;
+          return d?.url || null;
+        }
       } catch {}
       return null;
     })();
@@ -586,6 +597,20 @@ export default function App() {
       setWeatherIsNight(data.is_night || false);
       setWeatherTemp(data.temp_c ?? null);
       setWeatherCity(data.city_name || "");
+
+      // Prefetch full-song URLs for every track in the background so
+      // tracks 2-7 are cache-hits by the time the user reaches them
+      data.results.forEach((t, i) => {
+        if (i === 0) return; // track 0 is fetched immediately in playTrack
+        const key = `${t.song}|||${t.artists?.[0] || ""}`;
+        if (urlCacheRef.current[key] !== undefined) return;
+        urlCacheRef.current[key] = null; // mark in-flight
+        const params = new URLSearchParams({ song: t.song, artist: t.artists?.[0] || "" });
+        fetch(`${API_BASE}/full-url?${params}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(d => { if (d?.url) urlCacheRef.current[key] = d.url; })
+          .catch(() => {});
+      });
 
       setScreen("player");
       playTrack(0, data.results);
