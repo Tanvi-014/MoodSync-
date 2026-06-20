@@ -8,6 +8,7 @@ import asyncio
 import random
 import re
 import os
+import time
 
 # Always load backend/.env relative to this file, regardless of where uvicorn is started from
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
@@ -147,11 +148,12 @@ VIBE_QUERIES_INDIAN = {
 # Specific song title searches for Hindi — injected as direct iTunes queries,
 # bypassing the bollywood/hindi template so the exact song always gets a shot.
 HINDI_SONG_PINS = {
-    "sad":      ["Tum Hi Ho", "Kabhi Jo Badal", "Husn Anuv Jain"],
-    "romantic": ["Anuv Jain romantic", "Humdard Arijit Singh", "Tere Aas Paas Din Saara Gaurav Chatterji"],
-    "calm":     ["Agar Tum Saath Ho", "Sukoon Mila"],
-    "party":    ["Tareefan"],
-    "happy":    ["Malang Sajna", "Pal Pal Dil Ke Paas"],
+    "sad":       ["Tum Hi Ho", "Kabhi Jo Badal", "Husn Anuv Jain"],
+    "romantic":  ["Anuv Jain romantic", "Humdard Arijit Singh", "Tere Aas Paas Din Saara Gaurav Chatterji"],
+    "calm":      ["Agar Tum Saath Ho", "Sukoon Mila"],
+    "party":     ["Tareefan"],
+    "happy":     ["Malang Sajna", "Pal Pal Dil Ke Paas"],
+    "nostalgic": ["Mere Bina Atif Aslam", "Tu Jaane Na Atif Aslam", "Humma Humma AR Rahman"],
 }
 
 # Same concept for English — direct song title searches added to vibe queries.
@@ -346,18 +348,25 @@ def normalize_weather(raw: str) -> str:
     return m.get(raw, "Clear")
 
 
+_itunes_cache: dict[str, tuple[float, list]] = {}
+_CACHE_TTL = 1800  # 30 minutes — warm across the demo session
+
 async def _itunes(client: httpx.AsyncClient, query: str, country: str, limit: int) -> list:
+    key = f"{query}|{country}|{limit}"
+    ts, cached = _itunes_cache.get(key, (0, None))
+    if cached is not None and time.time() - ts < _CACHE_TTL:
+        return cached
     try:
         r = await client.get(
             "https://itunes.apple.com/search",
             params={"term": query, "media": "music", "entity": "song",
                     "limit": limit, "country": country, "explicit": "No"},
         )
-        if r.status_code != 200:
-            return []
-        return r.json().get("results", [])
+        results = r.json().get("results", []) if r.status_code == 200 else []
     except Exception:
-        return []
+        results = []
+    _itunes_cache[key] = (time.time(), results)
+    return results
 
 
 def format_track(item: dict) -> dict | None:
@@ -471,8 +480,8 @@ async def get_recommendations(base_vibe: str, adjusted_energy: int, language: st
     # ── Batch 1: pins + vibe queries all fire in parallel ─────────────────────
     async with httpx.AsyncClient(timeout=10) as client:
         batch1 = await asyncio.gather(
-            *[_itunes(client, q, country, 10) for q in pin_list],
-            *[_itunes(client, q, country, 25) for q in vibe_queries],
+            *[_itunes(client, q, country, 5)  for q in pin_list],
+            *[_itunes(client, q, country, 15) for q in vibe_queries],
             return_exceptions=True,
         )
 
