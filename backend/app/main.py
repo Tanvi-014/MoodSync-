@@ -102,7 +102,7 @@ VIBE_QUERIES = {
     "happy":     ["Anne-Marie","Justin Bieber","Selena Gomez","feel good pop","upbeat summer pop"],
     "sad":       ["Olivia Rodrigo","LAUV","Sasha Alex Sloan","heartbreak pop","sad indie pop"],
     "stressed":  ["Ed Sheeran","Shawn Mendes","Charlie Puth","calming soft songs","gentle acoustic pop"],
-    "focus":     ["study focus music","concentration work beats","productive instrumental"],
+    "focus":     ["Lo-Fi Beats","Hans Zimmer","Max Richter","Nils Frahm","ambient instrumental","Brian Eno"],
     "romantic":  ["Ed Sheeran","Charlie Puth","Shawn Mendes","Taylor Swift","James Arthur","Ellie Goulding","romantic love songs","sweet love ballads"],
     "nostalgic": ["Taylor Swift","Maroon 5","The Cranberries","2010s pop hits","throwback indie pop"],
     "excited":   ["Bruno Mars","Justin Bieber","Shawn Mendes","Charlie Puth","Ed Sheeran","hype upbeat pop","exciting dance pop"],
@@ -123,15 +123,15 @@ VIBE_QUERIES = {
 # Short 1-3 word vibe terms that combine cleanly with non-English templates
 # e.g. "bollywood {vibe}" needs single-phrase modifiers, not long English descriptions
 VIBE_QUERIES_INDIAN = {
-    "focus":     ["soft instrumental","calm melodious","background melody"],
+    "focus":     ["AR Rahman instrumental","soft instrumental","background score","ambient hindi"],
     "stressed":  ["Lucky Ali","Mohit Chauhan","soothing calm songs","soft relaxing"],
     "nostalgic": ["Atif Aslam","KK","Mohit Chauhan","Pritam","2000s hindi songs"],
     "dreamy":    ["soft dreamy","gentle dreamy","dreamy melody"],
     "uplifting": ["Sukhwinder Singh","motivational songs","feel good inspirational"],
     "healing":   ["Jubin Nautiyal","Arijit Singh","healing songs","emotional comfort"],
-    "excited":   ["pump up","hype energy","exciting upbeat"],
+    "excited":   ["Badshah","Nucleya","Divine","Raftaar","upbeat hindi pop"],
     "energetic": ["Shankar Mahadevan","Guru Randhawa","Vishal-Shekhar","Sunidhi Chauhan","dance pop","high energy dance"],
-    "angry":     ["intense powerful","angry energy","rage intense"],
+    "angry":     ["Raftaar","Brodha V","Emiway Bantai","Divine","desi hip hop"],
     "fresh":     ["trending songs","new songs","latest hits","top chart songs"],
     "chill":     ["Lucky Ali","Mohit Chauhan","chill relaxed","easy chill"],
     "soothing":  ["Shreya Ghoshal","Armaan Malik","Monali Thakur","soothing songs","gentle songs"],
