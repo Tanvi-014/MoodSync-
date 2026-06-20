@@ -368,6 +368,17 @@ export default function App() {
     currentIdxRef.current = index;
     userPausedRef.current = false;
 
+    // Kick off JioSaavn lookup immediately — runs in parallel with Spotify search
+    // so if Spotify fails/is slow, full-song URL is already ready
+    const saavnPromise = (async () => {
+      try {
+        const params = new URLSearchParams({ song: track.song, artist: track.artists[0] || "" });
+        const res = await fetch(`${API_BASE}/full-url?${params}`);
+        if (res.ok) { const d = await res.json(); return d.url || null; }
+      } catch {}
+      return null;
+    })();
+
     // ── Try Spotify first ──
     if (!spPremiumBlockedRef.current && spReadyRef.current && spTokenRef.current && spDeviceRef.current) {
       try {
@@ -392,16 +403,8 @@ export default function App() {
 
     if (requestId !== playRequestRef.current) return;
 
-    // ── Fallback: JioSaavn (full song) → iTunes preview ──
-    let audioUrl = null;
-    try {
-      const params = new URLSearchParams({ song: track.song, artist: track.artists[0] || "" });
-      const res = await fetch(`${API_BASE}/full-url?${params}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.url) audioUrl = data.url;
-      }
-    } catch {}
+    // ── Fallback: JioSaavn (already running) → iTunes preview ──
+    let audioUrl = await saavnPromise;
 
     if (!audioUrl && track.preview_url) audioUrl = track.preview_url;
 

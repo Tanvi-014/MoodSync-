@@ -59,26 +59,27 @@ export async function refreshAccessToken(refreshToken) {
 export async function searchTrack(token, song, artist, language = "English") {
   const market = language === "English" ? "US" : "IN";
 
-  // Three strategies, most-precise to most-lenient
-  const strategies = [
+  // Fire all three strategies in parallel — take best result in priority order
+  const queries = [
     `track:"${song}" artist:"${artist}"`,
     `${song} ${artist}`,
     `${song}`,
   ];
 
-  for (const q of strategies) {
-    try {
-      const r = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=track&limit=5&market=${market}`,
+  const results = await Promise.allSettled(
+    queries.map(q =>
+      fetch(
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=track&limit=3&market=${market}`,
         { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (!r.ok) continue;
-      const d = await r.json();
-      const items = d?.tracks?.items ?? [];
-      // prefer playable tracks; fall back to first result
-      const pick = items.find(t => t.is_playable !== false) ?? items[0];
-      if (pick?.uri) return pick.uri;
-    } catch {}
+      ).then(r => r.ok ? r.json() : null)
+    )
+  );
+
+  for (const r of results) {
+    if (r.status !== "fulfilled" || !r.value) continue;
+    const items = r.value?.tracks?.items ?? [];
+    const pick = items.find(t => t.is_playable !== false) ?? items[0];
+    if (pick?.uri) return pick.uri;
   }
   return null;
 }
