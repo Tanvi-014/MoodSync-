@@ -104,7 +104,7 @@ VIBE_QUERIES = {
     "focus":     ["study focus music","concentration work beats","productive instrumental"],
     "romantic":  ["Ed Sheeran","Charlie Puth","Shawn Mendes","Taylor Swift","James Arthur","Ellie Goulding","romantic love songs","sweet love ballads"],
     "nostalgic": ["Taylor Swift","Maroon 5","The Cranberries","2010s pop hits","throwback indie pop"],
-    "excited":   ["Bruno Mars","Justin Bieber","Selena Gomez","hype upbeat pop","exciting dance pop"],
+    "excited":   ["Bruno Mars","Justin Bieber","Shawn Mendes","Charlie Puth","Ed Sheeran","hype upbeat pop","exciting dance pop"],
     "calm":      ["Ed Sheeran","Shawn Mendes","Charlie Puth","soft acoustic songs","slow gentle ballads"],
     "angry":     ["Paramore","Twenty One Pilots","Avril Lavigne","punk pop anthems","alternative rock"],
     "dreamy":    ["LAUV","Madison Beer","Alan Walker","dreamy indie pop","ethereal pop"],
@@ -155,7 +155,9 @@ HINDI_SONG_PINS = {
 
 # Same concept for English — direct song title searches added to vibe queries.
 ENGLISH_SONG_PINS = {
-    "romantic": ["Love Story Taylor Swift", "Perfect Ed Sheeran", "Blue"],
+    "romantic":  ["Love Story Taylor Swift", "Perfect Ed Sheeran", "Blue"],
+    "nostalgic": ["Friends Marshmello Anne-Marie", "2002 Anne-Marie", "That's So True Gracie Abrams", "Drag Me Down One Direction"],
+    "excited":   ["Metro Boomin Spider-Man", "Calling Metro Boomin"],
 }
 
 # For Hindi/Indian, shift vibes map to abstract terms (e.g. "uplifting") that don't
@@ -426,11 +428,34 @@ def get_recommendations(base_vibe: str, adjusted_energy: int, language: str, wea
         elif weather_kw:
             vibe_queries.insert(0, f"{weather_kw} {vibe_terms[0]}")
 
-    # Pinned song searches — direct title queries, no template wrapping
-    if cfg.get("indian_vibes"):
-        vibe_queries.extend(HINDI_SONG_PINS.get(base_vibe, []))
-    else:
-        vibe_queries.extend(ENGLISH_SONG_PINS.get(base_vibe, []))
+    # Phase 0 — pinned songs: searched first, placed at front of result so they
+    # are never shuffled out of the top 7. Genre filter relaxed so specific titles
+    # (e.g. Husn tagged "Singer/Songwriter") aren't blocked by language filters.
+    pin_list   = HINDI_SONG_PINS.get(base_vibe, []) if cfg.get("indian_vibes") else ENGLISH_SONG_PINS.get(base_vibe, [])
+    pin_cfg    = {**cfg, "required_genre": None}
+    pin_tracks = []
+
+    for song in pin_list:
+        items = search_itunes(song, country=country, limit=5)
+        for item in items:
+            track_id = item.get("trackId")
+            if not track_id or track_id in seen_ids:
+                continue
+            if not passes_genre_filter(item, pin_cfg):
+                continue
+            title_key = _title_key(item)
+            if title_key in seen_titles:
+                continue
+            artist_key = item.get("artistName", "").strip().lower()
+            if seen_artists.get(artist_key, 0) >= MAX_PER_ARTIST:
+                continue
+            seen_ids.add(track_id)
+            seen_titles.add(title_key)
+            seen_artists[artist_key] = seen_artists.get(artist_key, 0) + 1
+            t = format_track(item)
+            if t:
+                pin_tracks.append(t)
+                break  # one track per pin query is enough
 
     pool = []
 
@@ -456,8 +481,7 @@ def get_recommendations(base_vibe: str, adjusted_energy: int, language: str, wea
                 pool.append(t)
 
     # Phase 2 — artist fallback; only when Phase 1 didn't yield enough
-    # Phase 2 — artist fallback; only when Phase 1 didn't yield enough
-    if len(pool) < 7:
+    if len(pool) + len(pin_tracks) < 7:
         artist_cfg = {**cfg, "required_genre": None}
         mood_hint = "" if cfg.get("indian_vibes") else (vibe_terms[0] if vibe_terms else "")
         for artist in cfg["artist_queries"]:
@@ -510,7 +534,7 @@ def get_recommendations(base_vibe: str, adjusted_energy: int, language: str, wea
                     pool.append(t)
 
     random.shuffle(pool)
-    return pool[:7]
+    return (pin_tracks + pool)[:7]
 
 
 @app.get("/full-url")
